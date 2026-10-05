@@ -62,7 +62,7 @@ class TestRepositorio(unittest.TestCase):
                      or f.endswith(".env") or "notas_privadas" in f]
         self.assertEqual(proibidos, [])
 
-    def test_sem_termo_agente_nem_caminho_local(self):
+    def test_sem_termo_proibido_nem_caminho_local(self):
         termo = "agen" + "te"  # montado para este teste não acusar a si próprio
         padrao_caminho = re.compile(r"[A-Za-z]:\\\\?Users\\\\?", re.I)
         achados = []
