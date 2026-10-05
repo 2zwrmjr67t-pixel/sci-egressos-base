@@ -1,0 +1,12 @@
+# Dados brutos e privados: nunca versionar
+*.xlsx
+sofascore_consolidado_*
+notas_privadas.csv
+.env
+
+# Prompts de trabalho
+PROMPT_*.md
+
+# Python / saídas locais
+__pycache__/
+output/

@@ -1,0 +1,670 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Egressos de Base · SCI</title>
+<meta name="description" content="Triagem estatística de egressos das categorias de base de sete clubes brasileiros (dados Sofascore).">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Big+Shoulders+Display:wght@600;700;800&display=swap">
+<style>
+:root {
+  --vermelho: #C8102E;
+  --tinta: #221E1F;
+  --cinza: #6E6567;
+  --linha: #E4DEDC;
+  --cartao: #FFFFFF;
+  --pagina: #F5F2F1;
+  --pagina-tinta: #221E1F;
+  --pagina-suave: #5E5658;
+  --painel: #FFFFFF;
+  --painel-linha: #E4DEDC;
+  --foco: #C8102E;
+  --fonte-titulo: "Big Shoulders Display", "Big Shoulders", "Arial Narrow", "Roboto Condensed", system-ui, sans-serif;
+  --fonte-texto: "Archivo", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --pagina: #161314;
+    --pagina-tinta: #F3EFEE;
+    --pagina-suave: #BDB4B6;
+    --painel: #221E1F;
+    --painel-linha: #3A3435;
+    --foco: #FF8A9B;
+    color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--pagina);
+  color: var(--pagina-tinta);
+  font-family: var(--fonte-texto);
+  font-size: 15px;
+  line-height: 1.45;
+}
+:focus-visible { outline: 3px solid var(--foco); outline-offset: 2px; border-radius: 4px; }
+.wrap { max-width: 1240px; margin: 0 auto; padding: 0 16px; }
+
+/* Topo */
+header.topo { padding: 20px 0 8px; }
+.marca { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.marca h1 {
+  font-family: var(--fonte-titulo);
+  font-weight: 800;
+  font-size: clamp(30px, 7vw, 44px);
+  line-height: 1;
+  letter-spacing: .01em;
+  text-transform: uppercase;
+  margin: 0;
+}
+.marca h1 span { color: var(--vermelho); }
+@media (prefers-color-scheme: dark) { .marca h1 span { color: #FF5C72; } }
+.sub { color: var(--pagina-suave); margin: 6px 0 0; font-size: 14px; }
+
+/* Chips de classe */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 4px; padding: 0; list-style: none; }
+.chip-classe {
+  font: 600 14px/1 var(--fonte-texto);
+  display: inline-flex; align-items: center; gap: 8px;
+  min-height: 40px; padding: 0 12px 0 6px;
+  border-radius: 999px;
+  border: 1.5px solid var(--painel-linha);
+  background: var(--painel);
+  color: var(--pagina-suave);
+  cursor: pointer;
+}
+@media (max-width: 479px) { .chip-classe .rot.longa { display: none; } }
+.chip-classe .n { font-variant-numeric: tabular-nums; font-weight: 500; }
+.chip-classe[aria-pressed="true"] { border-color: var(--pagina-tinta); color: var(--pagina-tinta); }
+.chip-classe[aria-pressed="false"] .selo { opacity: .45; }
+.chip-classe[aria-pressed="false"] .rot { text-decoration: line-through; text-decoration-thickness: 1px; }
+
+/* Selos de classe (cores fixas, usados também no cartão) */
+.selo {
+  display: inline-grid; place-items: center;
+  min-width: 28px; height: 28px; padding: 0 6px;
+  border-radius: 6px;
+  font: 800 16px/1 var(--fonte-titulo);
+  letter-spacing: .02em;
+}
+.selo-A { background: #C8102E; color: #FFFFFF; }
+.selo-B { background: #221E1F; color: #FFFFFF; }
+.selo-C { background: #FFFFFF; color: #221E1F; box-shadow: inset 0 0 0 2px #221E1F; }
+.selo-D { background: #FBE7EA; color: #8E0B21; box-shadow: inset 0 0 0 1.5px #C8102E; }
+.selo-E { background: #EEEAE9; color: #221E1F; }
+.selo-SD { background: #8A8183; color: #FFFFFF; }
+.selo-DESC { background: #FFFFFF; color: #6E6567; box-shadow: inset 0 0 0 1.5px #6E6567; font-size: 12px; }
+
+/* Filtros */
+.filtros {
+  display: grid; gap: 10px 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 14px 0 6px;
+  padding: 14px;
+  background: var(--painel);
+  border: 1px solid var(--painel-linha);
+  border-radius: 12px;
+}
+.campo { display: flex; flex-direction: column; justify-content: flex-end; gap: 4px; min-width: 0; }
+.campo label { font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--pagina-suave); }
+.campo select, .campo input {
+  width: 100%;
+  font: 500 15px var(--fonte-texto);
+  color: var(--pagina-tinta);
+  background: var(--pagina);
+  border: 1px solid var(--painel-linha);
+  border-radius: 8px;
+  min-height: 42px;
+  padding: 0 10px;
+}
+.campo.busca { grid-column: 1 / -1; }
+.campo.ordem { grid-column: 1 / -1; }
+.ordem-linha { display: flex; flex-wrap: wrap; gap: 8px; }
+.ordem-linha select { flex: 1 1 100%; }
+.ordem-linha .btn { flex: 1 1 0; }
+@media (min-width: 480px) { .ordem-linha select { flex: 1 1 auto; width: auto; min-width: 0; } .ordem-linha .btn { flex: 0 0 auto; } }
+.btn {
+  font: 600 14px var(--fonte-texto);
+  min-height: 42px; padding: 0 12px;
+  border-radius: 8px;
+  border: 1px solid var(--painel-linha);
+  background: var(--pagina);
+  color: var(--pagina-tinta);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.barra-resultado { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin: 10px 0 12px; color: var(--pagina-suave); font-size: 14px; }
+.barra-resultado strong { color: var(--pagina-tinta); }
+@media (min-width: 720px) {
+  .filtros { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .campo.busca { grid-column: span 2; }
+  .campo.ordem { grid-column: span 2; }
+}
+@media (min-width: 1100px) {
+  .filtros { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .campo.busca, .campo.ordem { grid-column: span 3; }
+}
+
+/* Erro */
+.erro {
+  display: none;
+  margin: 16px 0; padding: 14px 16px;
+  border-radius: 10px;
+  background: #FBE7EA; color: #6B0818;
+  border: 1.5px solid #C8102E;
+  font-weight: 500;
+}
+.erro.ativo { display: block; }
+.carga-local { margin: 0 0 16px; padding: 14px 16px; border-radius: 10px; background: var(--painel); border: 1px solid var(--painel-linha); display: flex; flex-direction: column; gap: 8px; }
+.carga-local[hidden] { display: none; }
+.carga-local label { font-weight: 600; }
+.carga-local input { font: 500 15px var(--fonte-texto); color: var(--pagina-tinta); max-width: 100%; }
+
+/* Cartões: cores fixas, independentes do tema */
+.grade { display: grid; gap: 14px; grid-template-columns: 1fr; margin: 0 0 28px; padding: 0; list-style: none; }
+@media (min-width: 720px) { .grade { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1100px) { .grade { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.cartao {
+  background: var(--cartao);
+  color: var(--tinta);
+  border: 1px solid var(--linha);
+  border-top: 4px solid var(--linha);
+  border-radius: 12px;
+  padding: 14px 14px 12px;
+  display: flex; flex-direction: column; gap: 10px;
+  min-width: 0;
+}
+.cartao.c-A { border-top-color: #C8102E; }
+.cartao.c-B { border-top-color: #221E1F; }
+.cartao.c-DESC, .cartao.c-SD { border-top-color: #8A8183; }
+.cab { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.cab h2 {
+  font: 700 24px/1.05 var(--fonte-titulo);
+  text-transform: uppercase;
+  letter-spacing: .01em;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.ficha { color: var(--cinza); font-size: 13.5px; margin-top: 3px; }
+.ficha .alerta { color: #A50D26; font-weight: 700; }
+.selos-dir { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
+.bsc { text-align: right; line-height: 1; }
+.bsc .v { font: 800 30px/1 var(--fonte-titulo); color: var(--tinta); font-variant-numeric: tabular-nums; }
+.bsc .l { font-size: 10.5px; font-weight: 700; letter-spacing: .08em; color: var(--cinza); display: block; margin-top: 2px; }
+
+.emprestado {
+  align-self: flex-start;
+  background: #C8102E; color: #FFFFFF;
+  font-size: 12.5px; font-weight: 700;
+  padding: 4px 9px; border-radius: 6px;
+}
+.contexto { font-size: 14px; display: grid; gap: 2px; }
+.contexto .rot { color: var(--cinza); }
+.tier-delta { color: var(--cinza); font-variant-numeric: tabular-nums; }
+
+.numeros { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; border-top: 1px solid var(--linha); border-bottom: 1px solid var(--linha); }
+.numeros > div { padding: 8px 4px 7px; text-align: center; min-width: 0; }
+.numeros > div + div { border-left: 1px solid var(--linha); }
+.numeros .v { font: 700 20px/1.1 var(--fonte-titulo); font-variant-numeric: tabular-nums; display: block; }
+.numeros .l { font-size: 11px; color: var(--cinza); letter-spacing: .02em; }
+
+.mercado { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 14px; }
+.mercado .rot { color: var(--cinza); }
+
+.pilares { display: grid; gap: 5px; margin: 0; }
+.pilar { display: grid; grid-template-columns: 82px 1fr 34px; align-items: center; gap: 8px; font-size: 12.5px; }
+.pilar .nome { color: var(--cinza); }
+.pilar .trilho { display: block; height: 5px; background: #EEEAE9; border-radius: 3px; overflow: hidden; }
+.pilar .enche { display: block; height: 100%; background: var(--tinta); border-radius: 3px; }
+.pilar.imp .enche { background: #C8102E; }
+.pilar .v { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+.pilar.nd .v { color: var(--cinza); font-weight: 400; }
+
+.carac { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.carac.fraca-amostra .q { opacity: .5; }
+.q, .pf {
+  font-size: 12.5px; font-weight: 600;
+  padding: 3px 8px; border-radius: 999px;
+  display: inline-flex; gap: 5px; align-items: baseline;
+}
+.q { background: #221E1F; color: #FFFFFF; }
+.q .nota, .pf .nota { font-weight: 400; font-variant-numeric: tabular-nums; }
+.pf { background: #FFFFFF; color: #5A5254; box-shadow: inset 0 0 0 1px #B9B0B2; font-weight: 500; }
+.pf::before { content: "▾"; font-size: 10px; }
+.aviso-amostra { font-size: 12px; color: var(--cinza); font-style: italic; }
+.sem-q { font-size: 12.5px; color: var(--cinza); }
+
+.rodape-cartao { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 13px; border-top: 1px solid var(--linha); padding-top: 8px; margin-top: auto; }
+.disp { display: inline-flex; align-items: center; gap: 6px; color: var(--cinza); }
+.disp.vermelho { color: #A50D26; font-weight: 700; }
+.ponto { width: 8px; height: 8px; border-radius: 50%; background: #B9B0B2; display: inline-block; }
+.disp.vermelho .ponto { background: #C8102E; }
+.disp.amarelo .ponto { background: #B7791F; }
+.disp.verde .ponto { background: #2F7D4F; }
+.cartao a { color: #A50D26; font-weight: 600; text-underline-offset: 2px; }
+.obs { font-size: 12.5px; color: var(--cinza); }
+.vazio { padding: 30px 0; text-align: center; color: var(--pagina-suave); }
+
+/* Rodapé */
+footer.rodape { border-top: 1px solid var(--painel-linha); padding: 18px 0 32px; color: var(--pagina-suave); font-size: 13.5px; }
+footer.rodape p { margin: 0 0 8px; max-width: 80ch; }
+footer.rodape .destaque { color: var(--pagina-tinta); font-weight: 700; font-size: 15px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="topo">
+    <div class="marca">
+      <h1>Egressos <span>de base</span></h1>
+    </div>
+    <p class="sub" id="sub">Sete formadores brasileiros · Sofascore · <span id="data-coleta">carregando…</span></p>
+    <ul class="chips" id="chips" aria-label="Classes exibidas"></ul>
+  </header>
+
+  <div class="erro" id="erro" role="alert"></div>
+  <div class="carga-local" id="carga-local" hidden>
+    <label for="f-arquivo">Abrir dados manualmente (jogadores.json e meta.json)</label>
+    <input id="f-arquivo" type="file" accept=".json,application/json" multiple>
+  </div>
+
+  <form class="filtros" id="filtros" onsubmit="return false" aria-label="Filtros">
+    <div class="campo"><label for="f-pos">Posição</label>
+      <select id="f-pos">
+        <option value="">Todas</option>
+        <option value="GOL">Goleiro (GOL)</option>
+        <option value="ZAG">Zagueiro (ZAG)</option>
+        <option value="LAT">Lateral (LAT)</option>
+        <option value="MEI">Meio-campo (MEI)</option>
+        <option value="ATA">Atacante (ATA)</option>
+      </select></div>
+    <div class="campo"><label for="f-formador">Clube formador</label>
+      <select id="f-formador"><option value="">Todos</option></select></div>
+    <div class="campo"><label for="f-tier">Tier</label>
+      <select id="f-tier">
+        <option value="">Todos</option>
+        <option value="1">Tier 1</option>
+        <option value="2">Tier 2</option>
+        <option value="3">Tier 3</option>
+        <option value="4">Tier 4</option>
+        <option value="nd">Sem tier</option>
+      </select></div>
+    <div class="campo"><label for="f-janela">Janela contratual</label>
+      <select id="f-janela"><option value="">Todas</option></select></div>
+    <div class="campo"><label for="f-valor">Valor de mercado</label>
+      <select id="f-valor">
+        <option value="">Todos</option>
+        <option value="ate500k">Até € 500 mil</option>
+        <option value="ate1500k">Até € 1,5 mi</option>
+        <option value="acima1500k">Acima de € 1,5 mi</option>
+      </select></div>
+    <div class="campo"><label for="f-vinculo">Vínculo</label>
+      <select id="f-vinculo">
+        <option value="">Todos</option>
+        <option value="proprio">Só próprio</option>
+        <option value="emprestimo">Só empréstimo</option>
+      </select></div>
+    <div class="campo busca"><label for="f-busca">Buscar por nome</label>
+      <input id="f-busca" type="search" placeholder="Ex.: Micael" autocomplete="off"></div>
+    <div class="campo ordem"><label for="f-ordem">Ordenar por</label>
+      <div class="ordem-linha">
+        <select id="f-ordem">
+          <option value="min_3a">Minutos 2023–25</option>
+          <option value="bsc">BSC</option>
+          <option value="imposicao">Imposição</option>
+          <option value="rendimento">Rendimento</option>
+          <option value="altura_cm">Altura</option>
+          <option value="valor_eur">Valor de mercado</option>
+        </select>
+        <button type="button" class="btn" id="f-dir" aria-label="Inverter ordem">Maior → menor</button>
+        <button type="button" class="btn" id="f-limpar">Limpar</button>
+      </div></div>
+  </form>
+
+  <div class="barra-resultado" aria-live="polite"><span id="contagem"></span></div>
+
+  <ul class="grade" id="grade" aria-label="Jogadores"></ul>
+
+  <footer class="rodape">
+    <p class="destaque">Triagem estatística, não recomendação.</p>
+    <p>A imposição compara cada jogador aos egressos da mesma posição (altura, duelos aéreos, disputas, velocidade, gols de cabeça) e não mede território nem aspecto mental.</p>
+    <p>Fonte: Sofascore<span id="rodape-coleta"></span>. Valores de mercado são estimativas; salários não considerados; nota média do Sofascore não capturada. Vínculo e disponibilidade vêm de curadoria manual.</p>
+    <p id="rodape-versao"></p>
+  </footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var CLASSES = [
+    { k: "A", rot: "A", desc: "Alvo prioritário" },
+    { k: "B", rot: "B", desc: "Imposição" },
+    { k: "C", rot: "C", desc: "Qualidade técnica" },
+    { k: "D", rot: "D", desc: "Monitorar (amostra baixa)" },
+    { k: "E", rot: "E", desc: "Base" },
+    { k: "SD", rot: "SD", desc: "Sem dados suficientes" },
+    { k: "DESC", rot: "Desconsiderado", desc: "Desconsiderado" }
+  ];
+  var CLASSES_INICIAIS = ["A", "B", "C", "D"];
+  var PILARES = [
+    ["imposicao", "Imposição", "imp"],
+    ["rendimento", "Rendimento", ""],
+    ["avaliacao", "Avaliação", ""],
+    ["contexto", "Contexto", ""],
+    ["mercado", "Mercado", ""]
+  ];
+
+  // ---------- Lógica pura (testável) ----------
+  function normaliza(s) {
+    return String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
+  }
+  function formadores(j) {
+    return String(j.formador || "").split("/").map(function (s) { return s.trim(); }).filter(Boolean);
+  }
+  function contaClasses(dados) {
+    var c = {};
+    CLASSES.forEach(function (x) { c[x.k] = 0; });
+    dados.forEach(function (j) { c[j.classe] = (c[j.classe] || 0) + 1; });
+    return c;
+  }
+  function estadoInicial() {
+    return {
+      classes: CLASSES_INICIAIS.slice(),
+      pos: "", formador: "", tier: "", janela: "", valor: "", vinculo: "",
+      busca: "", ordem: "min_3a", dir: "desc"
+    };
+  }
+  function passa(j, e) {
+    if (e.classes.indexOf(j.classe) < 0) return false;
+    if (e.pos && j.pos !== e.pos) return false;
+    if (e.formador && formadores(j).indexOf(e.formador) < 0) return false;
+    if (e.tier) {
+      if (e.tier === "nd") { if (j.tier != null) return false; }
+      else if (String(j.tier) !== e.tier) return false;
+    }
+    if (e.janela && j.janela !== e.janela) return false;
+    if (e.valor) {
+      var v = j.valor_eur;
+      if (v == null) return false;
+      if (e.valor === "ate500k" && !(v <= 500000)) return false;
+      if (e.valor === "ate1500k" && !(v <= 1500000)) return false;
+      if (e.valor === "acima1500k" && !(v > 1500000)) return false;
+    }
+    if (e.vinculo === "emprestimo" && j.vinculo !== "emprestimo") return false;
+    if (e.vinculo === "proprio" && j.vinculo === "emprestimo") return false;
+    if (e.busca && normaliza(j.nome).indexOf(normaliza(e.busca)) < 0) return false;
+    return true;
+  }
+  function ordena(lista, campo, dir) {
+    var s = dir === "asc" ? 1 : -1;
+    return lista.slice().sort(function (a, b) {
+      var x = a[campo], y = b[campo];
+      var xn = x == null, yn = y == null;
+      if (xn && yn) return a.nome.localeCompare(b.nome, "pt-BR");
+      if (xn) return 1;   // sem dado sempre no fim
+      if (yn) return -1;
+      if (x !== y) return (x - y) * s;
+      return a.nome.localeCompare(b.nome, "pt-BR");
+    });
+  }
+  function aplica(dados, e) {
+    return ordena(dados.filter(function (j) { return passa(j, e); }), e.ordem, e.dir);
+  }
+
+  // ---------- Formatação ----------
+  var nf0 = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 0 });
+  var nf1 = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 1 });
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+  function num(v) { return v == null ? "—" : nf0.format(v); }
+  function euro(v) {
+    if (v == null) return "—";
+    if (v >= 1e6) return "€ " + nf1.format(v / 1e6) + " mi";
+    if (v >= 1e3) return "€ " + nf0.format(v / 1e3) + " mil";
+    return "€ " + nf0.format(v);
+  }
+  function dataBR(iso) {
+    if (!iso) return null;
+    var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso);
+    return m ? m[3] + "/" + m[2] + "/" + m[1] : iso;
+  }
+
+  // ---------- Renderização ----------
+  function selo(classe) {
+    var c = CLASSES.filter(function (x) { return x.k === classe; })[0];
+    var txt = classe === "DESC" ? "DESC" : classe;
+    return '<span class="selo selo-' + esc(classe) + '" title="Classe ' + esc(c ? c.desc : classe) + '">' + esc(txt) + "</span>";
+  }
+  function cartao(j) {
+    var ficha = [];
+    ficha.push(esc(j.pos));
+    if (j.idade != null) ficha.push(j.idade + " anos");
+    if (j.altura_cm != null) {
+      ficha.push(j.alerta_altura
+        ? '<span class="alerta" title="Altura diverge entre fontes">' + j.altura_cm + ' cm ⚠<span class="sr"> (alerta de altura)</span></span>'
+        : j.altura_cm + " cm");
+    }
+    if (j.pe) ficha.push("pé " + esc(j.pe.toLowerCase()));
+
+    var tier = j.tier != null ? "Tier " + j.tier : "Sem tier";
+    if (j.delta_tier) tier += ' <span class="tier-delta">(' + esc(j.delta_tier) + ")</span>";
+
+    var contrato;
+    if (j.contrato_ate) {
+      contrato = dataBR(j.contrato_ate) + (j.meses_contrato != null ? " · " + j.meses_contrato + (j.meses_contrato === 1 ? " mês" : " meses") : "");
+    } else {
+      contrato = j.contrato_livre ? "livre" : "—";
+    }
+
+    var pil = PILARES.map(function (p) {
+      var v = j[p[0]];
+      var nd = v == null;
+      var w = nd ? 0 : Math.max(0, Math.min(100, v));
+      return '<div class="pilar ' + p[2] + (nd ? " nd" : "") + '">' +
+        '<span class="nome">' + p[1] + "</span>" +
+        '<span class="trilho" role="presentation"><span class="enche" style="width:' + w + '%"></span></span>' +
+        '<span class="v">' + (nd ? "—" : nf0.format(v)) + "</span></div>";
+    }).join("");
+
+    var q = (j.qualidades || []).slice(0, 3).map(function (x) {
+      return '<span class="q">' + esc(x.tag) + ' <span class="nota">' + nf0.format(x.nota) + "</span></span>";
+    }).join("");
+    var pf = j.ponto_fraco ? '<span class="pf" title="Ponto fraco">' + esc(j.ponto_fraco.tag) + ' <span class="nota">' + nf0.format(j.ponto_fraco.nota) + "</span></span>" : "";
+    var baixa = j.amostra === "Baixa";
+    var carac = (q || pf)
+      ? '<div class="carac' + (baixa ? " fraca-amostra" : "") + '">' + q + pf + (baixa ? '<span class="aviso-amostra">amostra baixa</span>' : "") + "</div>"
+      : '<div class="carac"><span class="sem-q">Sem qualidades destacadas</span>' + (baixa ? '<span class="aviso-amostra">amostra baixa</span>' : "") + "</div>";
+
+    var disp = "";
+    if (j.disponibilidade === "vermelho") disp = '<span class="disp vermelho"><span class="ponto" aria-hidden="true"></span>disponibilidade: atenção</span>';
+    else if (j.disponibilidade === "amarelo") disp = '<span class="disp amarelo"><span class="ponto" aria-hidden="true"></span>disponibilidade: observar</span>';
+    else if (j.disponibilidade === "verde") disp = '<span class="disp verde"><span class="ponto" aria-hidden="true"></span>disponível</span>';
+    else disp = '<span class="disp" title="Disponibilidade não verificada"><span class="ponto" aria-hidden="true"></span><span class="sr">disponibilidade não verificada</span></span>';
+
+    return '<li class="cartao c-' + esc(j.classe) + '" data-id="' + esc(j.id) + '">' +
+      '<div class="cab"><div><h2>' + esc(j.nome) + '</h2><div class="ficha">' + ficha.join(" · ") + "</div></div>" +
+      '<div class="selos-dir">' + selo(j.classe) +
+      '<div class="bsc"><span class="v">' + (j.bsc == null ? "—" : nf0.format(j.bsc)) + '</span><span class="l">BSC</span></div></div></div>' +
+      (j.vinculo === "emprestimo" ? '<span class="emprestado">Emprestado pelo ' + esc(j.dono || "clube dono") + "</span>" : "") +
+      '<div class="contexto">' +
+        "<div>" + esc(j.clube) + (j.liga ? ' <span class="rot">· ' + esc(j.liga) + "</span>" : "") + "</div>" +
+        '<div><span class="rot">Formador:</span> ' + esc(j.formador) + ' <span class="rot">·</span> ' + tier + "</div>" +
+      "</div>" +
+      '<div class="numeros">' +
+        '<div><span class="v">' + num(j.min_temp) + '</span><span class="l">min temporada</span></div>' +
+        '<div><span class="v">' + num(j.min_3a) + '</span><span class="l">min 2023–25</span></div>' +
+        '<div><span class="v">' + num(j.gols_3a) + '</span><span class="l">gols 2023–25</span></div>' +
+      "</div>" +
+      '<div class="mercado"><span><span class="rot">Valor</span> ' + euro(j.valor_eur) + "</span>" +
+        '<span><span class="rot">Contrato</span> ' + contrato + "</span></div>" +
+      '<div class="pilares">' + pil + "</div>" +
+      carac +
+      (j.observacao ? '<div class="obs">' + esc(j.observacao) + "</div>" : "") +
+      '<div class="rodape-cartao">' + disp +
+        (j.sofascore_url ? '<a href="' + esc(j.sofascore_url) + '" target="_blank" rel="noopener">Perfil no Sofascore ↗</a>' : "") +
+      "</div></li>";
+  }
+
+  // ---------- Estado e interface ----------
+  var DADOS = [];
+  var estado = estadoInicial();
+  var $ = function (id) { return document.getElementById(id); };
+
+  function mostraErro(msg) {
+    var el = $("erro");
+    el.textContent = msg;
+    el.classList.add("ativo");
+  }
+
+  function desenhaChips(contagem) {
+    $("chips").innerHTML = CLASSES.map(function (c) {
+      var on = estado.classes.indexOf(c.k) >= 0;
+      return '<li><button type="button" class="chip-classe" data-classe="' + c.k + '" aria-pressed="' + on + '" title="' + esc(c.desc) + '">' +
+        selo(c.k) + '<span class="rot' + (c.k === "DESC" ? "" : " longa") + '">' + (c.k === "DESC" ? "Desconsiderado" : esc(c.desc)) + '</span><span class="n">' + (contagem[c.k] || 0) + "</span></button></li>";
+    }).join("");
+  }
+
+  function render() {
+    var lista = aplica(DADOS, estado);
+    var html = lista.map(cartao).join("");
+    $("grade").innerHTML = html || '<li class="vazio">Nenhum jogador com estes filtros.</li>';
+    $("contagem").innerHTML = "<strong>" + lista.length + "</strong> de " + DADOS.length + " jogadores";
+    $("f-dir").textContent = estado.dir === "desc" ? "Maior → menor" : "Menor → maior";
+    Array.prototype.forEach.call(document.querySelectorAll(".chip-classe"), function (b) {
+      b.setAttribute("aria-pressed", String(estado.classes.indexOf(b.getAttribute("data-classe")) >= 0));
+    });
+  }
+
+  function preencheOpcoes() {
+    ["f-formador", "f-janela"].forEach(function (id) { $(id).length = 1; });
+    var fs = {};
+    DADOS.forEach(function (j) { formadores(j).forEach(function (f) { fs[f] = true; }); });
+    var lista = Object.keys(fs).sort(function (a, b) {
+      if (a === "Não mapeado") return 1;
+      if (b === "Não mapeado") return -1;
+      return a.localeCompare(b, "pt-BR");
+    });
+    $("f-formador").insertAdjacentHTML("beforeend", lista.map(function (f) { return '<option value="' + esc(f) + '">' + esc(f) + "</option>"; }).join(""));
+    var ordemJanela = ["≤12m · oportunidade", "12–24m", "Mais de 24m", "Sem dado"];
+    var js = {};
+    DADOS.forEach(function (j) { if (j.janela) js[j.janela] = true; });
+    var janelas = Object.keys(js).sort(function (a, b) {
+      var ia = ordemJanela.indexOf(a), ib = ordemJanela.indexOf(b);
+      return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib) || a.localeCompare(b, "pt-BR");
+    });
+    $("f-janela").insertAdjacentHTML("beforeend", janelas.map(function (f) { return '<option value="' + esc(f) + '">' + esc(f) + "</option>"; }).join(""));
+  }
+
+  function liga() {
+    $("chips").addEventListener("click", function (ev) {
+      var b = ev.target.closest(".chip-classe");
+      if (!b) return;
+      var k = b.getAttribute("data-classe");
+      var i = estado.classes.indexOf(k);
+      if (i >= 0) estado.classes.splice(i, 1); else estado.classes.push(k);
+      render();
+    });
+    [["f-pos", "pos"], ["f-formador", "formador"], ["f-tier", "tier"], ["f-janela", "janela"],
+     ["f-valor", "valor"], ["f-vinculo", "vinculo"], ["f-ordem", "ordem"]].forEach(function (p) {
+      $(p[0]).addEventListener("change", function (ev) { estado[p[1]] = ev.target.value; render(); });
+    });
+    $("f-arquivo").addEventListener("change", function (ev) { if (ev.target.files.length) cargaLocal(ev.target.files); });
+    $("f-busca").addEventListener("input", function (ev) { estado.busca = ev.target.value; render(); });
+    $("f-dir").addEventListener("click", function () { estado.dir = estado.dir === "desc" ? "asc" : "desc"; render(); });
+    $("f-limpar").addEventListener("click", function () {
+      estado = estadoInicial();
+      $("filtros").reset();
+      render();
+    });
+  }
+
+  function aplicaMeta(meta) {
+    var m = /coleta de (\d{2}\/\d{2}\/\d{4})/.exec(meta.fonte || "");
+    var coleta = m ? m[1] : dataBR(meta.data_referencia);
+    $("data-coleta").textContent = coleta ? "coleta de " + coleta : "data de coleta indisponível";
+    $("rodape-coleta").textContent = coleta ? " (coleta de " + coleta + ")" : "";
+    $("rodape-versao").textContent = "Dados " + (meta.versao_dados || "") +
+      (meta.data_referencia ? " · referência " + dataBR(meta.data_referencia) : "") +
+      " · " + (meta.n_jogadores != null ? meta.n_jogadores : DADOS.length) + " jogadores.";
+  }
+
+  function inicia(jogadores, meta) {
+    DADOS = Array.isArray(jogadores) ? jogadores : [];
+    if (!DADOS.length) throw new Error("jogadores.json está vazio ou em formato inesperado");
+    $("erro").classList.remove("ativo");
+    $("carga-local").hidden = true;
+    var cont = contaClasses(DADOS);
+    desenhaChips(cont);
+    preencheOpcoes();
+    if (meta) {
+      aplicaMeta(meta);
+      var cm = meta.classes || {};
+      var diverge = CLASSES.some(function (c) { return (cm[c.k] || 0) !== (cont[c.k] || 0); });
+      if (diverge || (meta.n_jogadores != null && meta.n_jogadores !== DADOS.length)) {
+        mostraErro("Atenção: as contagens de jogadores.json divergem de meta.json. Rode scripts/sync_docs.py e confira os dados.");
+      }
+    } else {
+      $("data-coleta").textContent = "meta.json não carregado";
+    }
+    render();
+  }
+
+  // Alternativa quando o fetch falha (arquivo aberto direto do disco):
+  // o usuário escolhe jogadores.json (e, opcionalmente, meta.json) em docs/data/.
+  function cargaLocal(arquivos) {
+    var leituras = Array.prototype.map.call(arquivos, function (f) {
+      return f.text().then(function (t) { return JSON.parse(t); });
+    });
+    Promise.all(leituras).then(function (objs) {
+      var jog = null, meta = null;
+      objs.forEach(function (o) {
+        if (Array.isArray(o)) jog = o;
+        else if (o && typeof o === "object" && o.classes) meta = o;
+      });
+      if (!jog) throw new Error("selecione o arquivo jogadores.json (pasta docs/data)");
+      inicia(jog, meta);
+    }).catch(function (err) {
+      mostraErro("Não foi possível ler o arquivo escolhido: " + err.message + ".");
+    });
+  }
+
+  function carrega() {
+    var pJog = fetch("data/jogadores.json", { cache: "no-cache" }).then(function (r) {
+      if (!r.ok) throw new Error("HTTP " + r.status + " ao ler data/jogadores.json");
+      return r.json();
+    });
+    var pMeta = fetch("data/meta.json", { cache: "no-cache" }).then(function (r) {
+      return r.ok ? r.json() : null;
+    }).catch(function () { return null; });
+
+    Promise.all([pJog, pMeta]).then(function (res) {
+      inicia(res[0], res[1]);
+    }).catch(function (err) {
+      $("data-coleta").textContent = "dados não carregados";
+      var local = location.protocol === "file:";
+      mostraErro(local
+        ? "O painel foi aberto direto do disco e, por segurança, o navegador bloqueia a leitura automática dos dados. " +
+          "Publicado no GitHub Pages ele carrega sozinho. Para ver agora, escolha o arquivo docs/data/jogadores.json abaixo " +
+          "(selecione também meta.json para exibir a data da coleta)."
+        : "Não foi possível carregar os dados do painel (" + err.message + "). Escolha o arquivo docs/data/jogadores.json abaixo para abrir manualmente.");
+      $("carga-local").hidden = false;
+    });
+  }
+
+  // Exposto para testes automatizados
+  window.SCI = { CLASSES: CLASSES, estadoInicial: estadoInicial, passa: passa, ordena: ordena, aplica: aplica, contaClasses: contaClasses, dados: function () { return DADOS; } };
+
+  liga();
+  carrega();
+})();
+</script>
+</body>
+</html>
