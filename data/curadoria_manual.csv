@@ -1,0 +1,5 @@
+sofascore_id,nome,vinculo,dono,disponibilidade,desconsiderado,alerta_altura,fonte
+1105341,Micael,emprestimo,Palmeiras,nao_verificado,,sim,"Inter Miami (empréstimo do Palmeiras até o fim de 2026, com opção); altura diverge entre fontes (1,83 a 1,90 m)"
+1111123,Cipriano,emprestimo,APOEL,nao_verificado,,,"Imprensa (ge, ago/2026) sobre renovação do empréstimo; não confirmado por fonte do clube"
+1389980,Kevyson,emprestimo,Santos,vermelho,,,"Imprensa (ge, ago/2026); detalhe clínico fica fora do repositório público"
+1586575,Felipe Andrade,,,nao_verificado,,sim,"Altura diverge entre fontes (1,73 a 1,82 m)"

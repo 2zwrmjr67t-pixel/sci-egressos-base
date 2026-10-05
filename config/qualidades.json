@@ -1,0 +1,147 @@
+{
+  "versao": "q1",
+  "limiar_destaque": 70,
+  "limiar_ponto_fraco": 35,
+  "max_destaques": 3,
+  "tags": {
+    "Jogo aéreo": {
+      "metricas": [
+        "AER",
+        "AER_P",
+        "CAB",
+        "ALT"
+      ],
+      "min_metricas": 2
+    },
+    "Duelista": {
+      "metricas": [
+        "DUE",
+        "DUE_P",
+        "CHAO_P"
+      ],
+      "min_metricas": 2
+    },
+    "Goleador": {
+      "metricas": [
+        "GOLS",
+        "XG",
+        "GOLS3",
+        "SOT"
+      ],
+      "min_metricas": 2
+    },
+    "Criador": {
+      "metricas": [
+        "XA",
+        "KP",
+        "BCC"
+      ],
+      "min_metricas": 2
+    },
+    "Construtor": {
+      "metricas": [
+        "PAS",
+        "PAS_P",
+        "PT3",
+        "BL",
+        "BL_P"
+      ],
+      "min_metricas": 2
+    },
+    "Pressão e recuperação": {
+      "metricas": [
+        "RECA",
+        "REC",
+        "DES",
+        "INT"
+      ],
+      "min_metricas": 2
+    },
+    "Muralha": {
+      "metricas": [
+        "COR",
+        "INT",
+        "DRBD"
+      ],
+      "min_metricas": 2
+    },
+    "Velocista": {
+      "metricas": [
+        "VMAX"
+      ],
+      "min_metricas": 1
+    },
+    "Driblador": {
+      "metricas": [
+        "DRB"
+      ],
+      "min_metricas": 1
+    },
+    "Reflexo": {
+      "metricas": [
+        "GK_DEF",
+        "GK_DEF_P",
+        "GK_GEV",
+        "GK_GSJ"
+      ],
+      "min_metricas": 2
+    },
+    "Saída e jogo aéreo": {
+      "metricas": [
+        "GK_SAI",
+        "ALT"
+      ],
+      "min_metricas": 1
+    },
+    "Jogo com os pés": {
+      "metricas": [
+        "PAS_P",
+        "BL",
+        "BL_P"
+      ],
+      "min_metricas": 2
+    }
+  },
+  "por_posicao": {
+    "ZAG": [
+      "Jogo aéreo",
+      "Duelista",
+      "Muralha",
+      "Construtor",
+      "Velocista"
+    ],
+    "LAT": [
+      "Velocista",
+      "Duelista",
+      "Muralha",
+      "Criador",
+      "Driblador",
+      "Construtor"
+    ],
+    "MEI": [
+      "Pressão e recuperação",
+      "Duelista",
+      "Construtor",
+      "Criador",
+      "Goleador",
+      "Driblador",
+      "Jogo aéreo",
+      "Velocista"
+    ],
+    "ATA": [
+      "Goleador",
+      "Jogo aéreo",
+      "Duelista",
+      "Criador",
+      "Driblador",
+      "Velocista",
+      "Pressão e recuperação"
+    ],
+    "GOL": [
+      "Reflexo",
+      "Saída e jogo aéreo",
+      "Jogo com os pés"
+    ]
+  },
+  "nota": "Nota da tag = média dos percentis (0–100, dentro da posição) das métricas disponíveis. Percentil de métrica 'menor é melhor' já vem invertido. Tags de jogador com amostra baixa devem ser exibidas esmaecidas."
+}

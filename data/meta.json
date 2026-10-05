@@ -1,0 +1,33 @@
+{
+  "versao_dados": "v2",
+  "gerado_em": "2026-10-05T12:13:53",
+  "data_referencia": "2026-10-01",
+  "fonte": "Sofascore (coleta de 30/09/2026) + planilha mestre do projeto",
+  "n_jogadores": 227,
+  "classes": {
+    "E": 139,
+    "D": 43,
+    "SD": 16,
+    "A": 13,
+    "C": 8,
+    "B": 6,
+    "DESC": 2
+  },
+  "qualidades_cfg": "q1",
+  "parametros_classe": {
+    "corte_A_score": 55.0,
+    "corte_A_imposicao": 55.0,
+    "corte_B_imposicao": 70.0,
+    "corte_C": 70.0,
+    "corte_D": 65.0,
+    "piso": 45.0
+  },
+  "limitacoes": [
+    "Nota média do Sofascore não capturada; avaliação usa atributos e Time da semana",
+    "Percentis comparam os egressos entre si, por posição",
+    "Estatísticas de métrica vêm da temporada exibida no perfil; minutos e gols 2023–25 vêm dos totais da Carreira",
+    "Fator de nível por Tier é calibração inicial",
+    "Vínculo (empréstimo) e disponibilidade médica não vêm do Sofascore: ver curadoria_manual.csv",
+    "Sem dados de salário"
+  ]
+}
