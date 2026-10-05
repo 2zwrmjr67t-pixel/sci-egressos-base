@@ -126,6 +126,21 @@ try {
 } catch (e) { falhas.push(e); }
 finally { s2.close(); }
 
+// Aberto direto do disco: mensagem clara + carga manual do JSON
+try {
+  const { ctx, page, erros } = await abre("file://" + join(DOCS, "index.html"), 375);
+  await page.waitForSelector("#erro.ativo");
+  assert.match(await page.textContent("#erro"), /aberto direto do disco/);
+  await page.setInputFiles("#f-arquivo", [join(DOCS, "data/jogadores.json"), join(DOCS, "data/meta.json")]);
+  await page.waitForSelector(".cartao");
+  assert.equal(await page.$$eval(".cartao", (x) => x.length), 70);
+  assert.equal(await page.isVisible("#erro"), false);
+  assert.match(await page.textContent("footer"), /coleta de 30\/09\/2026/);
+  assert.deepEqual(erros.filter((e) => !/Fetch API cannot load file|Failed to fetch|ERR_/.test(e)), []);
+  await ctx.close();
+  ok("file:// com carga manual do JSON");
+} catch (e) { falhas.push(e); }
+
 await browser.close();
 if (falhas.length) { falhas.forEach((f) => console.error("FALHA", f.message)); process.exit(1); }
 console.log("todos os testes do painel passaram");

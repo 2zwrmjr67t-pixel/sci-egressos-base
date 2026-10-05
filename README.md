@@ -42,7 +42,7 @@ Distribuição na versão v2 [Verificado — `data/meta.json`]: A 13 · B 6 · C
 
 ## Painel
 
-Abra `docs/index.html` por HTTP (o `fetch` não funciona via `file://`):
+Depois de publicado no GitHub Pages, o painel carrega os dados sozinho. Aberto direto do disco (duplo clique, `file://`), o navegador bloqueia a leitura automática do JSON: o painel avisa e oferece um botão para escolher `docs/data/jogadores.json` (e `meta.json`) manualmente. Para testar localmente com carga automática, sirva a pasta por HTTP:
 
 ```bash
 python3 -m http.server -d docs 8000

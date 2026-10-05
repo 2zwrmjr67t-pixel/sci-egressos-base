@@ -159,6 +159,10 @@ header.topo { padding: 20px 0 8px; }
   font-weight: 500;
 }
 .erro.ativo { display: block; }
+.carga-local { margin: 0 0 16px; padding: 14px 16px; border-radius: 10px; background: var(--painel); border: 1px solid var(--painel-linha); display: flex; flex-direction: column; gap: 8px; }
+.carga-local[hidden] { display: none; }
+.carga-local label { font-weight: 600; }
+.carga-local input { font: 500 15px var(--fonte-texto); color: var(--pagina-tinta); max-width: 100%; }
 
 /* Cartões: cores fixas, independentes do tema */
 .grade { display: grid; gap: 14px; grid-template-columns: 1fr; margin: 0 0 28px; padding: 0; list-style: none; }
@@ -263,6 +267,10 @@ footer.rodape .destaque { color: var(--pagina-tinta); font-weight: 700; font-siz
   </header>
 
   <div class="erro" id="erro" role="alert"></div>
+  <div class="carga-local" id="carga-local" hidden>
+    <label for="f-arquivo">Abrir dados manualmente (jogadores.json e meta.json)</label>
+    <input id="f-arquivo" type="file" accept=".json,application/json" multiple>
+  </div>
 
   <form class="filtros" id="filtros" onsubmit="return false" aria-label="Filtros">
     <div class="campo"><label for="f-pos">Posição</label>
@@ -536,6 +544,7 @@ footer.rodape .destaque { color: var(--pagina-tinta); font-weight: 700; font-siz
   }
 
   function preencheOpcoes() {
+    ["f-formador", "f-janela"].forEach(function (id) { $(id).length = 1; });
     var fs = {};
     DADOS.forEach(function (j) { formadores(j).forEach(function (f) { fs[f] = true; }); });
     var lista = Object.keys(fs).sort(function (a, b) {
@@ -567,6 +576,7 @@ footer.rodape .destaque { color: var(--pagina-tinta); font-weight: 700; font-siz
      ["f-valor", "valor"], ["f-vinculo", "vinculo"], ["f-ordem", "ordem"]].forEach(function (p) {
       $(p[0]).addEventListener("change", function (ev) { estado[p[1]] = ev.target.value; render(); });
     });
+    $("f-arquivo").addEventListener("change", function (ev) { if (ev.target.files.length) cargaLocal(ev.target.files); });
     $("f-busca").addEventListener("input", function (ev) { estado.busca = ev.target.value; render(); });
     $("f-dir").addEventListener("click", function () { estado.dir = estado.dir === "desc" ? "asc" : "desc"; render(); });
     $("f-limpar").addEventListener("click", function () {
@@ -586,6 +596,46 @@ footer.rodape .destaque { color: var(--pagina-tinta); font-weight: 700; font-siz
       " · " + (meta.n_jogadores != null ? meta.n_jogadores : DADOS.length) + " jogadores.";
   }
 
+  function inicia(jogadores, meta) {
+    DADOS = Array.isArray(jogadores) ? jogadores : [];
+    if (!DADOS.length) throw new Error("jogadores.json está vazio ou em formato inesperado");
+    $("erro").classList.remove("ativo");
+    $("carga-local").hidden = true;
+    var cont = contaClasses(DADOS);
+    desenhaChips(cont);
+    preencheOpcoes();
+    if (meta) {
+      aplicaMeta(meta);
+      var cm = meta.classes || {};
+      var diverge = CLASSES.some(function (c) { return (cm[c.k] || 0) !== (cont[c.k] || 0); });
+      if (diverge || (meta.n_jogadores != null && meta.n_jogadores !== DADOS.length)) {
+        mostraErro("Atenção: as contagens de jogadores.json divergem de meta.json. Rode scripts/sync_docs.py e confira os dados.");
+      }
+    } else {
+      $("data-coleta").textContent = "meta.json não carregado";
+    }
+    render();
+  }
+
+  // Alternativa quando o fetch falha (arquivo aberto direto do disco):
+  // o usuário escolhe jogadores.json (e, opcionalmente, meta.json) em docs/data/.
+  function cargaLocal(arquivos) {
+    var leituras = Array.prototype.map.call(arquivos, function (f) {
+      return f.text().then(function (t) { return JSON.parse(t); });
+    });
+    Promise.all(leituras).then(function (objs) {
+      var jog = null, meta = null;
+      objs.forEach(function (o) {
+        if (Array.isArray(o)) jog = o;
+        else if (o && typeof o === "object" && o.classes) meta = o;
+      });
+      if (!jog) throw new Error("selecione o arquivo jogadores.json (pasta docs/data)");
+      inicia(jog, meta);
+    }).catch(function (err) {
+      mostraErro("Não foi possível ler o arquivo escolhido: " + err.message + ".");
+    });
+  }
+
   function carrega() {
     var pJog = fetch("data/jogadores.json", { cache: "no-cache" }).then(function (r) {
       if (!r.ok) throw new Error("HTTP " + r.status + " ao ler data/jogadores.json");
@@ -596,26 +646,16 @@ footer.rodape .destaque { color: var(--pagina-tinta); font-weight: 700; font-siz
     }).catch(function () { return null; });
 
     Promise.all([pJog, pMeta]).then(function (res) {
-      DADOS = Array.isArray(res[0]) ? res[0] : [];
-      if (!DADOS.length) throw new Error("data/jogadores.json está vazio ou em formato inesperado");
-      var cont = contaClasses(DADOS);
-      desenhaChips(cont);
-      preencheOpcoes();
-      if (res[1]) {
-        aplicaMeta(res[1]);
-        var cm = res[1].classes || {};
-        var diverge = CLASSES.some(function (c) { return (cm[c.k] || 0) !== (cont[c.k] || 0); });
-        if (diverge || (res[1].n_jogadores != null && res[1].n_jogadores !== DADOS.length)) {
-          mostraErro("Atenção: as contagens de jogadores.json divergem de meta.json. Rode scripts/sync_docs.py e confira os dados.");
-        }
-      } else {
-        $("data-coleta").textContent = "meta.json não carregado";
-      }
-      render();
+      inicia(res[0], res[1]);
     }).catch(function (err) {
-      $("data-coleta").textContent = "dados indisponíveis";
-      mostraErro("Não foi possível carregar os dados do painel (" + err.message + "). " +
-        "Se você abriu o arquivo direto do disco, sirva a pasta docs/ por HTTP (ex.: python3 -m http.server -d docs).");
+      $("data-coleta").textContent = "dados não carregados";
+      var local = location.protocol === "file:";
+      mostraErro(local
+        ? "O painel foi aberto direto do disco e, por segurança, o navegador bloqueia a leitura automática dos dados. " +
+          "Publicado no GitHub Pages ele carrega sozinho. Para ver agora, escolha o arquivo docs/data/jogadores.json abaixo " +
+          "(selecione também meta.json para exibir a data da coleta)."
+        : "Não foi possível carregar os dados do painel (" + err.message + "). Escolha o arquivo docs/data/jogadores.json abaixo para abrir manualmente.");
+      $("carga-local").hidden = false;
     });
   }
 
